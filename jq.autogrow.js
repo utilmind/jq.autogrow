@@ -1,0 +1,165 @@
+/**
+ * AutoGrow for <textarea>, jQuery plugin
+ * @author Aleksey Kuznietsov aka utilmind
+ * @version 1.0
+ *
+ * @example $('textarea').autoGrow({
+ *              animate: {
+ *                      enabled: true, // default is false
+ *                      duration: "fast", // default: 200
+ *                      complete: function() {},       // Default: null
+ *                      step:     function(now, fx) {} // Default: null
+ *              },
+ *              maxHeight: "500px",                    // Default: null (unlimited)
+ *          });
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lessier General Public License version 3 as published by
+ * the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lessier General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lessier General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+(function($) {
+        $(document).ready(function() {
+                var copyDiv = document.createElement("div"),
+                    $copy = $(copyDiv);
+
+                $copy.css({
+                  "box-sizing": "border-box",
+                  "-moz-box-sizing": "border-box",
+                  "-ms-box-sizing": "border-box",
+                  "-webkit-box-sizing": "border-box",
+                  "display": "none",  // originally visibility: hidden.
+                });
+
+                document.body.appendChild(copyDiv);
+
+                function autoSize($textarea, options) {
+                    var textareaWidth = $textarea.width();
+                    if (0 <= textareaWidth) { // don't do anything if width of textarea is 0 or negative. It's invisible.
+                          // The copy must have the same properties as an original.
+                          var text = $textarea.val(),
+                              copyProperties = ["fontFamily",
+                                                "fontSize",
+                                                "fontStyle",
+                                                "fontWeight",
+                                                "fontVariant",
+
+                                                "lineHeight",
+                                                "wordSpacing",
+                                                "letterSpacing",
+                                                "textTransform",
+                                                "textRendering",
+
+                                                "padding",
+                                                "paddingLeft",
+                                                "paddingRight",
+                                                "paddingTop",
+                                                "paddingBottom",
+
+                                                "border",
+                                                "borderLeft",
+                                                "borderRight",
+                                                "borderTop",
+                                                "borderBottom",
+                                               ],
+
+                              textReplacements = [["<",   "&lt;"],
+                                                  [">",   "&gt;"],
+                                                  ["!",   "&excl;"],
+                                                  ["\"",  "&quot;"],
+                                                  ["$",   "&dollar;"],
+                                                  ["#",   "&num;"],
+                                                  ["%",   "&percnt;"],
+                                                  ["&",   "&amp;"],
+                                                  ["'",   "&apos;"],
+                                                  [/\n/g, "<br />"],
+                                                 ];
+
+                          $.each(copyProperties, function(key, val) {
+                              $copy.css(val, $textarea.css(val));
+                          });
+                          $copy.css("width", $textarea.width()); // CAUTION! TextArea element must be already visible and rendered in order to calculate width correctly.
+                          $textarea.css("overflow", "hidden");
+
+                          // Copy textarea contents; browser will calculate correct height of copy.
+                          $.each(textReplacements, function(key, val) {
+                              text = text.replace(val[0], val[1]);
+                          });
+
+                          $copy.html(text + "<br /><br />");
+
+                          // Then, we get the height of the copy and we apply it to the textarea.
+                          var newHeight = $copy.outerHeight(), // can be $copy.css("height")
+                              newHeightI = parseInt(newHeight),
+                              maxHeightI = parseInt(options.maxHeight),
+                              minHeightI = parseInt(options.minHeight);
+                          $copy.html(""); // not necessary, since $copy is invisible, but just to keep the DOM clean.
+
+                          if (0 !== newHeightI) {
+                              if ((!options.maxHeight || (newHeightI < maxHeightI)) &&
+                                  (!options.minHeight || (newHeightI > minHeightI))) {
+                                        if (options.animate.enabled) {
+                                                options.animate.queue = false;
+                                                $textarea.animate({
+                                                        height: newHeight,
+                                                }, options.animate);
+
+                                                newHeight = false; // keep current height
+                                        }
+                                        text = "hidden"; // reuse "text" var
+
+                              }else {
+                                        if (options.maxHeight && (newHeightI >= maxHeightI)) {
+                                          newHeight = options.maxHeight;
+
+                                        }else if (options.minHeight && (newHeightI <= minHeightI)) {
+                                          newHeight = options.minHeight;
+
+                                        }else
+                                          newHeight = false; // keep current height
+
+                                        text = "scroll"; // reuse "text" var
+                              }
+
+                              $textarea.css("overflow-y", text);
+                              if (newHeight)
+                                $textarea.css("height", newHeight);
+                          }
+                    }
+                }
+
+                // CAUTION! TextArea element must be already visible and rendered on first call of autoGrow(), in order to calculate width correctly.
+                $.fn.autoGrow = function(options) {
+                    options = $.extend({}, { // defaults
+                            animate: {
+                                enabled:   false,
+                                duration:  200,
+                                complete:  null,
+                                step:      null,
+                            },
+                            maxHeight:     null,
+                            minHeight:     null,
+                        }, options);
+
+                    return this.each(function() {
+                        var $this = $(this),
+                            onceToken = "_isAuthGrowInited";
+
+                        if (!$this.data(onceToken)) { // first time.
+                          $this.data(onceToken, true)
+                               .on("change keydown keyup focus", function() { autoSize($this, options); } ); // once()
+                        }
+
+                        // No animations on start
+                        autoSize($this, $.extend({}, options, { animate: { enabled: false } }));
+                    });
+                };
+        });
+})(jQuery);
