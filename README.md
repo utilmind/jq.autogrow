@@ -4,7 +4,7 @@ AutoGrow for &lt;textarea>, jQuery plugin
 This is jQuery plugin, which allows &lt;textarea&gt;'s to automatically resize, to grow or shrink, according to the volume of text inside.
 
 USAGE:
-<code>
+<pre>
 $("textarea").autoGrow({
                 animate: {
                        enabled: true, // default is false
@@ -14,4 +14,4 @@ $("textarea").autoGrow({
                },
                maxHeight: "500px",                    // Default: null (unlimited)
            });
-</code>
+</pre>
