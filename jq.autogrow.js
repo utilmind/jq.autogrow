@@ -10,8 +10,11 @@
  *                      complete: function() {},       // Default: null
  *                      step:     function(now, fx) {} // Default: null
  *              },
- *              maxHeight: "500px",                    // Default: null (unlimited)
+ *              minHeight: "150px", // Default: null (unlimited)
+ *              maxHeight: "500px", // --- // ---
  *          });
+ *   If "minHeight" / "maxHeight" options is not strictly specified, it takes values from
+ *   "data-min-height" and "data-max-height" attributes.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lessier General Public License version 3 as published by
