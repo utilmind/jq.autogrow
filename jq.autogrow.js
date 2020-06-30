@@ -3,7 +3,7 @@
  * @author Aleksey Kuznietsov aka utilmind
  * @version 1.0
  *
- * @example $('textarea').autoGrow({
+ * @example $("textarea").autoGrow({
  *              animate: {
  *                      enabled: true, // default is false
  *                      duration: "fast", // default: 200
@@ -125,10 +125,11 @@
                                         }else
                                           newHeight = false; // keep current height
 
-                                        text = "scroll"; // reuse "text" var
+                                        text = newHeightI > minHeightI ? "scroll" : "hidden"; // reuse "text" var
                               }
 
-                              $textarea.css("overflow-y", text);
+                              if (text !== $textarea.css("overflow-y"))
+                                $textarea.css("overflow-y", text);
                               if (newHeight)
                                 $textarea.css("height", newHeight);
                           }
