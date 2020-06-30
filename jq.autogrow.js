@@ -116,16 +116,16 @@
                                         text = "hidden"; // reuse "text" var
 
                               }else {
+                                        text = "scroll";
                                         if (options.maxHeight && (newHeightI >= maxHeightI)) {
                                           newHeight = options.maxHeight;
 
                                         }else if (options.minHeight && (newHeightI <= minHeightI)) {
                                           newHeight = options.minHeight;
+                                          text = "hidden";
 
                                         }else
                                           newHeight = false; // keep current height
-
-                                        text = newHeightI > minHeightI ? "scroll" : "hidden"; // reuse "text" var
                               }
 
                               if (text !== $textarea.css("overflow-y"))
@@ -150,12 +150,17 @@
                         }, options);
 
                     return this.each(function() {
-                        var $this = $(this),
-                            onceToken = "_isAuthGrowInited";
+                        var i, $this = $(this),
+                            onceToken = "isAuthGrowInited";
 
                         if (!$this.data(onceToken)) { // first time.
+                          if ((null === options.minHeight) && ($i = $this.data("min-height")))
+                            options.minHeight = $i;
+                          if ((null === options.maxHeight) && ($i = $this.data("max-height")))
+                            options.maxHeight = $i;
+
                           $this.data(onceToken, true)
-                               .on("change keydown keyup focus", function() { autoSize($this, options); } ); // once()
+                               .on("change input focus", function() { autoSize($this, options); } ); // once()
                         }
 
                         // No animations on start
