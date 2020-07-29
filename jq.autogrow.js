@@ -29,146 +29,144 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 (function($) {
-        $(document).ready(function() {
-                var copyDiv = document.createElement("div"),
-                    $copy = $(copyDiv);
+    var copyDiv = document.createElement("div"),
+        $copy = $(copyDiv);
 
-                $copy.css({
-                  "box-sizing": "border-box",
-                  "-moz-box-sizing": "border-box",
-                  "-ms-box-sizing": "border-box",
-                  "-webkit-box-sizing": "border-box",
-                  "display": "none",  // originally visibility: hidden.
-                });
+    $copy.css({
+      "box-sizing": "border-box",
+      "-moz-box-sizing": "border-box",
+      "-ms-box-sizing": "border-box",
+      "-webkit-box-sizing": "border-box",
+      "display": "none",  // originally visibility: hidden.
+    });
 
-                document.body.appendChild(copyDiv);
+    document.body.appendChild(copyDiv);
 
-                function autoSize($textarea, options) {
-                    var textareaWidth = $textarea.width();
-                    if (0 <= textareaWidth) { // don't do anything if width of textarea is 0 or negative. It's invisible.
-                          // The copy must have the same properties as an original.
-                          var text = $textarea.val(),
-                              copyProperties = ["fontFamily",
-                                                "fontSize",
-                                                "fontStyle",
-                                                "fontWeight",
-                                                "fontVariant",
+    function autoSize($textarea, options) {
+        var textareaWidth = $textarea.width();
+        if (0 <= textareaWidth) { // don't do anything if width of textarea is 0 or negative. It's invisible.
+              // The copy must have the same properties as an original.
+              var text = $textarea.val(),
+                  copyProperties = ["fontFamily",
+                                    "fontSize",
+                                    "fontStyle",
+                                    "fontWeight",
+                                    "fontVariant",
 
-                                                "lineHeight",
-                                                "wordSpacing",
-                                                "letterSpacing",
-                                                "textTransform",
-                                                "textRendering",
+                                    "lineHeight",
+                                    "wordSpacing",
+                                    "letterSpacing",
+                                    "textTransform",
+                                    "textRendering",
 
-                                                "padding",
-                                                "paddingLeft",
-                                                "paddingRight",
-                                                "paddingTop",
-                                                "paddingBottom",
+                                    "padding",
+                                    "paddingLeft",
+                                    "paddingRight",
+                                    "paddingTop",
+                                    "paddingBottom",
 
-                                                "border",
-                                                "borderLeft",
-                                                "borderRight",
-                                                "borderTop",
-                                                "borderBottom",
-                                               ],
+                                    "border",
+                                    "borderLeft",
+                                    "borderRight",
+                                    "borderTop",
+                                    "borderBottom",
+                                    ],
 
-                              textReplacements = [["<",   "&lt;"],
-                                                  [">",   "&gt;"],
-                                                  ["!",   "&excl;"],
-                                                  ["\"",  "&quot;"],
-                                                  ["$",   "&dollar;"],
-                                                  ["#",   "&num;"],
-                                                  ["%",   "&percnt;"],
-                                                  ["&",   "&amp;"],
-                                                  ["'",   "&apos;"],
-                                                  [/\n/g, "<br />"],
-                                                 ];
+                  textReplacements = [["<",   "&lt;"],
+                                      [">",   "&gt;"],
+                                      ["!",   "&excl;"],
+                                      ["\"",  "&quot;"],
+                                      ["$",   "&dollar;"],
+                                      ["#",   "&num;"],
+                                      ["%",   "&percnt;"],
+                                      ["&",   "&amp;"],
+                                      ["'",   "&apos;"],
+                                      [/\n/g, "<br />"],
+                                      ];
 
-                          $.each(copyProperties, function(key, val) {
-                              $copy.css(val, $textarea.css(val));
-                          });
-                          $copy.css("width", $textarea.width()); // CAUTION! TextArea element must be already visible and rendered in order to calculate width correctly.
-                          $textarea.css("overflow", "hidden");
+              $.each(copyProperties, function(key, val) {
+                  $copy.css(val, $textarea.css(val));
+              });
+              $copy.css("width", $textarea.width()); // CAUTION! TextArea element must be already visible and rendered in order to calculate width correctly.
+              $textarea.css("overflow", "hidden");
 
-                          // Copy textarea contents; browser will calculate correct height of copy.
-                          $.each(textReplacements, function(key, val) {
-                              text = text.replace(val[0], val[1]);
-                          });
+              // Copy textarea contents; browser will calculate correct height of copy.
+              $.each(textReplacements, function(key, val) {
+                  text = text.replace(val[0], val[1]);
+              });
 
-                          $copy.html(text + "<br /><br />");
+              $copy.html(text + "<br /><br />");
 
-                          // Then, we get the height of the copy and we apply it to the textarea.
-                          var newHeight = $copy.outerHeight(), // can be $copy.css("height")
-                              newHeightI = parseInt(newHeight),
-                              maxHeightI = parseInt(options.maxHeight),
-                              minHeightI = parseInt(options.minHeight);
-                          $copy.html(""); // not necessary, since $copy is invisible, but just to keep the DOM clean.
+              // Then, we get the height of the copy and we apply it to the textarea.
+              var newHeight = $copy.outerHeight(), // can be $copy.css("height")
+                  newHeightI = parseInt(newHeight),
+                  maxHeightI = parseInt(options.maxHeight),
+                  minHeightI = parseInt(options.minHeight);
+              $copy.html(""); // not necessary, since $copy is invisible, but just to keep the DOM clean.
 
-                          if (0 !== newHeightI) {
-                              if ((!options.maxHeight || (newHeightI < maxHeightI)) &&
-                                  (!options.minHeight || (newHeightI > minHeightI))) {
-                                        if (options.animate.enabled) {
-                                                options.animate.queue = false;
-                                                $textarea.animate({
-                                                        height: newHeight,
-                                                }, options.animate);
+              if (0 !== newHeightI) {
+                  if ((!options.maxHeight || (newHeightI < maxHeightI)) &&
+                      (!options.minHeight || (newHeightI > minHeightI))) {
+                            if (options.animate.enabled) {
+                                    options.animate.queue = false;
+                                    $textarea.animate({
+                                            height: newHeight,
+                                    }, options.animate);
 
-                                                newHeight = false; // keep current height
-                                        }
-                                        text = "hidden"; // reuse "text" var
+                                    newHeight = false; // keep current height
+                            }
+                            text = "hidden"; // reuse "text" var
 
-                              }else {
-                                        text = "scroll";
-                                        if (options.maxHeight && (newHeightI >= maxHeightI)) {
-                                          newHeight = options.maxHeight;
+                  }else {
+                            text = "scroll";
+                            if (options.maxHeight && (newHeightI >= maxHeightI)) {
+                              newHeight = options.maxHeight;
 
-                                        }else if (options.minHeight && (newHeightI <= minHeightI)) {
-                                          newHeight = options.minHeight;
-                                          text = "hidden";
+                            }else if (options.minHeight && (newHeightI <= minHeightI)) {
+                              newHeight = options.minHeight;
+                              text = "hidden";
 
-                                        }else
-                                          newHeight = false; // keep current height
-                              }
+                            }else
+                              newHeight = false; // keep current height
+                  }
 
-                              if (text !== $textarea.css("overflow-y"))
-                                $textarea.css("overflow-y", text);
-                              if (newHeight)
-                                $textarea.css("height", newHeight);
-                          }
-                    }
-                }
+                  if (text !== $textarea.css("overflow-y"))
+                    $textarea.css("overflow-y", text);
+                  if (newHeight)
+                    $textarea.css("height", newHeight);
+              }
+        }
+    }
 
-                // CAUTION! TextArea element must be already visible and rendered on first call of autoGrow(), in order to calculate width correctly.
-                $.fn.autoGrow = function(options) {
-                    options = $.extend({}, { // defaults
-                            animate: {
-                                enabled:   false,
-                                duration:  200,
-                                complete:  null,
-                                step:      null,
-                            },
-                            maxHeight:     null,
-                            minHeight:     null,
-                        }, options);
+    // CAUTION! TextArea element must be already visible and rendered on first call of autoGrow(), in order to calculate width correctly.
+    $.fn.autoGrow = function(options) {
+        options = $.extend({}, { // defaults
+                animate: {
+                    enabled:   false,
+                    duration:  200,
+                    complete:  null,
+                    step:      null,
+                },
+                maxHeight:     null,
+                minHeight:     null,
+            }, options);
 
-                    return this.each(function() {
-                        var i, $this = $(this),
-                            onceToken = "isAuthGrowInited";
+        return this.each(function() {
+            var i, $this = $(this),
+                onceToken = "isAuthGrowInited";
 
-                        if (!$this.data(onceToken)) { // first time.
-                          if ((null === options.minHeight) && ($i = $this.data("min-height")))
-                            options.minHeight = $i;
-                          if ((null === options.maxHeight) && ($i = $this.data("max-height")))
-                            options.maxHeight = $i;
+            if (!$this.data(onceToken)) { // first time.
+              if ((null === options.minHeight) && ($i = $this.data("min-height")))
+                options.minHeight = $i;
+              if ((null === options.maxHeight) && ($i = $this.data("max-height")))
+                options.maxHeight = $i;
 
-                          $this.data(onceToken, true)
-                               .on("change input focus", function() { autoSize($this, options); } ); // once()
-                        }
+              $this.data(onceToken, true)
+                    .on("change input focus", function() { autoSize($this, options); } ); // once()
+            }
 
-                        // No animations on start
-                        autoSize($this, $.extend({}, options, { animate: { enabled: false } }));
-                    });
-                };
+            // No animations on start
+            autoSize($this, $.extend({}, options, { animate: { enabled: false } }));
         });
+    };
 })(jQuery);
