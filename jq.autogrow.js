@@ -99,9 +99,9 @@
 
               // Then, we get the height of the copy and we apply it to the textarea.
               var newHeight = $copy.outerHeight(), // can be $copy.css("height")
-                  newHeightI = parseInt(newHeight),
-                  maxHeightI = parseInt(options.maxHeight),
-                  minHeightI = parseInt(options.minHeight);
+                  newHeightI = fl0at(newHeight),
+                  maxHeightI = fl0at(options.maxHeight),
+                  minHeightI = fl0at(options.minHeight);
               $copy.html(""); // not necessary, since $copy is invisible, but just to keep the DOM clean.
 
               if (0 !== newHeightI) {
@@ -139,34 +139,53 @@
     }
 
     // CAUTION! TextArea element must be already visible and rendered on first call of autoGrow(), in order to calculate width correctly.
-    $.fn.autoGrow = function(options) {
-        options = $.extend({}, { // defaults
-                animate: {
-                    enabled:   false,
-                    duration:  200,
-                    complete:  null,
-                    step:      null,
-                },
-                maxHeight:     null,
-                minHeight:     null,
-            }, options);
+    $.fn.extend({
+        autoGrow: function(options) {
+                options = $.extend({}, { // defaults
+                        animate: {
+                            enabled:   false,
+                            duration:  200,
+                            complete:  null,
+                            step:      null,
+                        },
+                        maxHeight:     null,
+                        minHeight:     null,
+                    }, options);
 
-        return this.each(function() {
-            var i, $this = $(this),
-                onceToken = "isAuthGrowInited";
+                return this.each(function() {
+                    var i, $this = $(this),
+                        onceToken = "isAuthGrowInited",
+                        localOptions = $.extend({}, options);
 
-            if (!$this.data(onceToken)) { // first time.
-              if ((null === options.minHeight) && ($i = $this.data("min-height")))
-                options.minHeight = $i;
-              if ((null === options.maxHeight) && ($i = $this.data("max-height")))
-                options.maxHeight = $i;
+                    if ((null === localOptions.minHeight) && ($i = $this.data("min-height")))
+                      localOptions.minHeight = $i;
+                    if ((null === localOptions.maxHeight) && ($i = $this.data("max-height")))
+                      localOptions.maxHeight = $i;
 
-              $this.data(onceToken, true)
-                    .on("change input focus", function() { autoSize($this, options); } ); // once()
-            }
+                    if (!$this.data(onceToken)) { // first time.
+                      $this.data(onceToken, true)
+                           .on("change input focus", function() { autoSize($this, localOptions); } ); // once()
+                    }
 
-            // No animations on start
-            autoSize($this, $.extend({}, options, { animate: { enabled: false } }));
-        });
-    };
+                    // No animations on start
+                    autoSize($this, $.extend({}, localOptions, { animate: { enabled: false } }));
+                });
+        },
+
+        // find all textareas with ".autogrow-500" class inside and make them auto-grow
+        autoGrow500: function() {
+                return this.each(function() {
+                    // autogrow of textareas in cbShown only. We can automatically choose the best height to fit only after everything shown.
+                    $(this).find("textarea.autogrow-500").autoGrow({ // don't worry, event handlers inside will be setup only once. This is only animiation and limitation options.
+                        animate: {
+                            enabled: canAnimate(),
+                            duration: "fast",
+                        },
+                        maxHeight: "500px",
+                        // minHeight: derived from "data-min-height" attribute. Eg: data-min-height="150px"
+                      });
+                });
+        },
+
+    });
 })(jQuery);
