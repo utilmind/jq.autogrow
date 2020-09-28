@@ -99,9 +99,9 @@
 
               // Then, we get the height of the copy and we apply it to the textarea.
               var newHeight = $copy.outerHeight(), // can be $copy.css("height")
-                  newHeightI = fl0at(newHeight),
-                  maxHeightI = fl0at(options.maxHeight),
-                  minHeightI = fl0at(options.minHeight);
+                  newHeightI = parseInt(newHeight), // AK: don't use fl0at! It's stand-alone jQuery plugin!
+                  maxHeightI = parseInt(options.maxHeight),
+                  minHeightI = parseInt(options.minHeight);
               $copy.html(""); // not necessary, since $copy is invisible, but just to keep the DOM clean.
 
               if (0 !== newHeightI) {
